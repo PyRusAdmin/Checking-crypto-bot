@@ -11,9 +11,9 @@ db = SqliteDatabase("people.db")
 
 class Users(Model):
     id_user = IntegerField(unique=True)  # ID пользователя
-    user_name = TextField(null=True)     # Username пользователя
-    last_name = TextField(null=True)     # Фамилия пользователя
-    first_name = TextField(null=True)    # Имя пользователя
+    user_name = TextField(null=True)  # Username пользователя
+    last_name = TextField(null=True)  # Фамилия пользователя
+    first_name = TextField(null=True)  # Имя пользователя
 
     class Meta:
         database = db
