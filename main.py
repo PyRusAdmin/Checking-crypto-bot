@@ -58,6 +58,17 @@ def get_tron_balance(address: str):
         print(f"{day['day']}: {day['trx_amount']} TRX "
               f"({day['usdt_amount']} USDT), цена {day['price']}$")
 
+        # Обзор токена TRX
+    get_token_resp = requests.get(
+        f"https://apilist.tronscanapi.com/api/account/token_asset_overview?address={address}"
+    ).json()
+
+    print("\n=== Обзор токена TRX ===")
+    for token in get_token_resp.get("data", []):
+        if token.get("token_name") == "TRX":
+            print(f"TRX: {token.get('balance', 0)} "
+                  f"~ {token.get('token_value_in_usd', 0)}$")
+
 
 # Хендлер команды /start
 @router.message(CommandStart())
