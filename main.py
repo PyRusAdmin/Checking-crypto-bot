@@ -35,17 +35,19 @@ def get_tron_balance(address: str):
               f"{token['balance']} "
               f"~ {token['token_value_in_usd']}$")
 
-    # Последние транзакции
-    tx_resp = requests.get(
-        f"https://apilist.tronscanapi.com/api/transfer/trx?address={address}&start=0&limit=5&direction=0"
+    # Последние TRC20 транзакции
+    trc20_resp = requests.get(
+        f"https://apilist.tronscanapi.com/api/token_trc20/transfers?address={address}&limit=5&start=0"
     ).json()
 
-    print("\n=== Последние транзакции ===")
-    for tx in tx_resp.get("data", []):
-        ts = datetime.fromtimestamp(tx['block_timestamp'] / 1000)
-        direction = "Вход" if tx['direction'] == 2 else "Выход"
-        print(f"{ts} | {direction} | {tx['amount']} TRX "
-              f"от {tx['from']} -> {tx['to']}")
+    print("\n=== Последние TRC20 транзакции ===")
+    for tx in trc20_resp.get("token_transfers", []):
+        ts = datetime.fromtimestamp(tx.get("block_ts", 0) / 1000)
+        token_name = tx.get("token_info", {}).get("symbol", "???")
+        amount = int(tx.get("quant", 0)) / (10 ** tx.get("token_info", {}).get("decimals", 0))
+        direction = "Вход" if tx.get("to") == address else "Выход"
+        print(f"{ts} | {direction} | {amount} {token_name} "
+              f"от {tx.get('from', '?')} -> {tx.get('to', '?')}")
 
     # Анализ по дням
     analysis_resp = requests.get(
