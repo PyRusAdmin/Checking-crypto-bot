@@ -11,7 +11,7 @@ from aiogram.types import Message
 
 from handler.handler import register_handler
 from keyboards.keyboards import register_keyboard
-from system.system import router, dp, bot, WALLET
+from system.system import router, dp, bot, WALLET, WALLET_1
 
 
 # https://tronscan.org/
@@ -75,8 +75,9 @@ def get_tron_balance(address: str):
 # Хендлер команды /start
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    get_tron_balance(address=WALLET)
-
+    wallet = [WALLET, WALLET_1]
+    for wall in wallet:
+        get_tron_balance(address=wall)
     await message.answer(
         f"Hello, {html.bold(message.from_user.full_name)}!",
         reply_markup=register_keyboard()

@@ -21,6 +21,14 @@ if not WALLET:
 
 logger.debug(f"TOKEN: {TOKEN}, WALLET: {WALLET}")
 
+#  Получаем кошелек пользователя
+WALLET_1 = os.getenv("WALLET_1")
+if not WALLET_1:
+    raise ValueError("❌ WALLET не найден! Укажите его в .env или переменной окружения.")
+
+logger.debug(f"TOKEN: {TOKEN}, WALLET: {WALLET_1}")
+
+
 # Создаём роутер
 router = Router()
 
