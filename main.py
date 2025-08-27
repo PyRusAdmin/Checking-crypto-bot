@@ -5,28 +5,26 @@ import logging
 import sys
 
 import requests
-from aiogram import html
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from handler.handler import register_handler
-from keyboards.keyboards import register_keyboard
 from system.system import router, dp, bot, WALLET, WALLET_1
 
 
-def get_tron_balance(address: str):
-    print("Транзакции USDT TRC20: TXtncqF1R75QAdmMAQCYEds2VDv13z2hM8")
+def get_tron_balance(address: str) -> str:
+    """Получаем транзакции и возвращаем как строку для отправки в бота"""
+    result = [f"Транзакции USDT TRC20: {address}\n"]
 
-    num = 0
     url = f"https://api.trongrid.io/v1/accounts/{address}/transactions/trc20"
     pages = 3
-
     params = {
         'only_confirmed': True,
         'limit': 20,
     }
 
-    for _ in range(0, pages):
+    num = 0
+    for _ in range(pages):
         r = requests.get(url, params=params, headers={"accept": "application/json"})
         params['fingerprint'] = r.json().get('meta', {}).get('fingerprint')
 
@@ -40,19 +38,24 @@ def get_tron_balance(address: str):
             f = float(v[:dec] + '.' + v[dec:])
             time_ = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
 
-            print(f"{num:>3} | {time_} | {f:>9.02f} {symbol} | {fr} > {to}")
+            result.append(f"{num:>3} | {time_} | {f:>9.02f} {symbol} | {fr} > {to}")
+
+    return "\n".join(result)
 
 
-# Хендлер команды /start
+async def send_long_message(message: Message, text: str, chunk_size: int = 4000):
+    """Отправляем длинное сообщение по кускам"""
+    for i in range(0, len(text), chunk_size):
+        await message.answer(text[i:i + chunk_size])
+
+
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     wallet = [WALLET, WALLET_1]
+
     for wall in wallet:
-        get_tron_balance(address=wall)
-    await message.answer(
-        f"Hello, {html.bold(message.from_user.full_name)}!",
-        reply_markup=register_keyboard()
-    )
+        transactions = get_tron_balance(address=wall)
+        await send_long_message(message, transactions)  # отправляем кусками
 
 
 async def main() -> None:
