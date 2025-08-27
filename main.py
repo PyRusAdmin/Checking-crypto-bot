@@ -11,6 +11,7 @@ from loguru import logger
 
 from handler.handler import register_handler
 from system.system import router, dp, bot, WALLET, WALLET_1
+from working_database.working_database import write_transaction
 
 
 def get_tron_balance(address: str) -> str:
@@ -31,20 +32,18 @@ def get_tron_balance(address: str) -> str:
         params['fingerprint'] = r.json().get('meta', {}).get('fingerprint')
 
         for tr in r.json().get('data', []):
-
-            to = tr.get('to')
-            if to == address:
+            to_transaction = tr.get('to')
+            if to_transaction == address:
                 symbol = tr.get('token_info', {}).get('symbol')
                 value = tr.get('value', '')
                 dec = -1 * int(tr.get('token_info', {}).get('decimals', '6'))
-                f = float(value[:dec] + '.' + value[dec:])
-                logger.info(f"Найден перевод USDT по адресу {address} на сумму {f} ")
+                amount = float(value[:dec] + '.' + value[dec:])
+                logger.info(f"Найден перевод USDT по адресу {address} на сумму {amount} ")
+                from_transaction = tr.get('from')
+                time = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
+                result.append(f"{time} | {amount:>9.02f} {symbol} | {from_transaction} > {to_transaction}")
 
-                fr = tr.get('from')
-
-                time_ = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
-
-                result.append(f"{time_} | {f:>9.02f} {symbol} | {fr} > {to}")
+                write_transaction(time, amount, symbol, from_transaction, to_transaction)
 
     return "\n".join(result)
 

@@ -16,10 +16,27 @@ class Users(Model):
         table_name = "users"
 
 
+class Transactions(Model):
+    time = DateTimeField()  # Время транзакции
+    amount = IntegerField()  # Сумма транзакции
+    symbol = TextField()  # Валюта транзакции
+    from_transaction = TextField()  # Откуда транзакция
+    to_transaction = TextField()  # Куда транзакция
+
+    class Meta:
+        database = db
+        table_name = "transactions"
+
+
 # Создаём таблицу при загрузке модуля
 db.connect()
-db.create_tables([Users], safe=True)
+db.create_tables([Users, Transactions], safe=True)
 db.close()
+
+
+def write_transaction(time, amount, symbol, from_transaction, to_transaction):
+    Transactions.create(time=time, amount=amount, symbol=symbol, from_transaction=from_transaction,
+                        to_transaction=to_transaction)
 
 
 def write_database(id_user, user_name, last_name, first_name):
