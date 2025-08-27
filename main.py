@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import datetime as dt
 import logging
 import sys
-from datetime import datetime
 
 import requests
 from aiogram import html
@@ -14,62 +14,33 @@ from keyboards.keyboards import register_keyboard
 from system.system import router, dp, bot, WALLET, WALLET_1
 
 
-# https://tronscan.org/
-
-# GET https://apilist.tronscanapi.com/api/account/wallet?address=<ваш адрес>&asset_type=0
-
-# GET https://apilist.tronscanapi.com/api/transfer/trx?address=<ваш адрес>&start=0&limit=20&direction=0
-
-# GET https://apilist.tronscanapi.com/api/account/analysis?address=<ваш адрес>&type=0&start_timestamp=<ms>&end_timestamp=<ms>
-
-
 def get_tron_balance(address: str):
-    # Баланс
-    balance_resp = requests.get(
-        f"https://apilist.tronscanapi.com/api/account/wallet?address={address}&asset_type=0"
-    ).json()
+    print("Транзакции USDT TRC20: TXtncqF1R75QAdmMAQCYEds2VDv13z2hM8")
 
-    print("\n=== Баланс ===")
-    for token in balance_resp.get("data", []):
-        print(f"{token['token_name'].upper()} ({token['token_abbr']}): "
-              f"{token['balance']} "
-              f"~ {token['token_value_in_usd']}$")
+    num = 0
+    url = f"https://api.trongrid.io/v1/accounts/{address}/transactions/trc20"
+    pages = 3
 
-    # Последние TRC20 транзакции
-    trc20_resp = requests.get(
-        f"https://apilist.tronscanapi.com/api/token_trc20/transfers?address={address}&limit=5&start=0"
-    ).json()
+    params = {
+        'only_confirmed': True,
+        'limit': 20,
+    }
 
-    print("\n=== Последние TRC20 транзакции ===")
-    for tx in trc20_resp.get("token_transfers", []):
-        ts = datetime.fromtimestamp(tx.get("block_ts", 0) / 1000)
-        token_name = tx.get("token_info", {}).get("symbol", "???")
-        amount = int(tx.get("quant", 0)) / (10 ** tx.get("token_info", {}).get("decimals", 0))
-        direction = "Вход" if tx.get("to") == address else "Выход"
-        print(f"{ts} | {direction} | {amount} {token_name} "
-              f"от {tx.get('from', '?')} -> {tx.get('to', '?')}")
+    for _ in range(0, pages):
+        r = requests.get(url, params=params, headers={"accept": "application/json"})
+        params['fingerprint'] = r.json().get('meta', {}).get('fingerprint')
 
-    # Анализ по дням
-    analysis_resp = requests.get(
-        f"https://apilist.tronscanapi.com/api/account/analysis"
-        f"?address={address}&type=0&start_timestamp=0&end_timestamp=9999999999999"
-    ).json()
+        for tr in r.json().get('data', []):
+            num += 1
+            symbol = tr.get('token_info', {}).get('symbol')
+            fr = tr.get('from')
+            to = tr.get('to')
+            v = tr.get('value', '')
+            dec = -1 * int(tr.get('token_info', {}).get('decimals', '6'))
+            f = float(v[:dec] + '.' + v[dec:])
+            time_ = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
 
-    print("\n=== Дневная статистика ===")
-    for day in analysis_resp.get("data", [])[:10]:
-        print(f"{day['day']}: {day['trx_amount']} TRX "
-              f"({day['usdt_amount']} USDT), цена {day['price']}$")
-
-        # Обзор токена TRX
-    get_token_resp = requests.get(
-        f"https://apilist.tronscanapi.com/api/account/token_asset_overview?address={address}"
-    ).json()
-
-    print("\n=== Обзор токена TRX ===")
-    for token in get_token_resp.get("data", []):
-        if token.get("token_name") == "TRX":
-            print(f"TRX: {token.get('balance', 0)} "
-                  f"~ {token.get('token_value_in_usd', 0)}$")
+            print(f"{num:>3} | {time_} | {f:>9.02f} {symbol} | {fr} > {to}")
 
 
 # Хендлер команды /start

@@ -1,5 +1,5 @@
-aiogram~=3.21.0
-python-dotenv~=1.1.1
-peewee~=3.18.2
-loguru~=0.7.3
-requests~=2.32.4
+aiogram
+python-dotenv
+peewee
+loguru
+requests
