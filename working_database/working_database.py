@@ -17,11 +17,12 @@ class Users(Model):
 
 
 class Transactions(Model):
+    transaction_id = TextField(primary_key=True)  # Уникальный ID транзакции
     time = DateTimeField()  # Время транзакции
-    amount = IntegerField()  # Сумма транзакции
-    symbol = TextField()  # Валюта транзакции
-    from_transaction = TextField()  # Откуда транзакция
-    to_transaction = TextField()  # Куда транзакция
+    amount = FloatField()  # Сумма транзакции
+    symbol = TextField()  # Валюта
+    from_transaction = TextField()  # Откуда
+    to_transaction = TextField()  # Куда
 
     class Meta:
         database = db
@@ -34,9 +35,18 @@ db.create_tables([Users, Transactions], safe=True)
 db.close()
 
 
-def write_transaction(time, amount, symbol, from_transaction, to_transaction):
-    Transactions.create(time=time, amount=amount, symbol=symbol, from_transaction=from_transaction,
-                        to_transaction=to_transaction)
+def write_transaction(transaction_id, time, amount, symbol, from_transaction, to_transaction):
+    try:
+        Transactions.create(
+            transaction_id=transaction_id,
+            time=time,
+            amount=amount,
+            symbol=symbol,
+            from_transaction=from_transaction,
+            to_transaction=to_transaction
+        )
+    except IntegrityError:
+        logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
 
 
 def write_database(id_user, user_name, last_name, first_name):

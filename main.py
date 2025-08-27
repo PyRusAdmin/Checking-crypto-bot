@@ -42,8 +42,8 @@ def get_tron_balance(address: str) -> str:
                 from_transaction = tr.get('from')
                 time = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
                 result.append(f"{time} | {amount:>9.02f} {symbol} | {from_transaction} > {to_transaction}")
-
-                write_transaction(time, amount, symbol, from_transaction, to_transaction)
+                tx_id = tr.get('transaction_id')
+                write_transaction(tx_id, time, amount, symbol, from_transaction, to_transaction)
 
     return "\n".join(result)
 
