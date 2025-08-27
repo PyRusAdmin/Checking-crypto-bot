@@ -1,3 +1,4 @@
+from loguru import logger
 from peewee import *
 
 # Подключение к БД
