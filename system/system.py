@@ -28,7 +28,6 @@ if not WALLET_1:
 
 logger.debug(f"TOKEN: {TOKEN}, WALLET: {WALLET_1}")
 
-
 # Создаём роутер
 router = Router()
 
