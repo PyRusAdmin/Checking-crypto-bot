@@ -7,6 +7,7 @@ import sys
 import requests
 from aiogram.filters import CommandStart
 from aiogram.types import Message
+from loguru import logger
 
 from handler.handler import register_handler
 from system.system import router, dp, bot, WALLET, WALLET_1
@@ -23,22 +24,27 @@ def get_tron_balance(address: str) -> str:
         'limit': 20,
     }
 
-    num = 0
     for _ in range(pages):
         r = requests.get(url, params=params, headers={"accept": "application/json"})
+        logger.info(r.json())
+
         params['fingerprint'] = r.json().get('meta', {}).get('fingerprint')
 
         for tr in r.json().get('data', []):
-            num += 1
-            symbol = tr.get('token_info', {}).get('symbol')
-            fr = tr.get('from')
-            to = tr.get('to')
-            v = tr.get('value', '')
-            dec = -1 * int(tr.get('token_info', {}).get('decimals', '6'))
-            f = float(v[:dec] + '.' + v[dec:])
-            time_ = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
 
-            result.append(f"{num:>3} | {time_} | {f:>9.02f} {symbol} | {fr} > {to}")
+            to = tr.get('to')
+            if to == address:
+                symbol = tr.get('token_info', {}).get('symbol')
+                value = tr.get('value', '')
+                dec = -1 * int(tr.get('token_info', {}).get('decimals', '6'))
+                f = float(value[:dec] + '.' + value[dec:])
+                logger.info(f"Найден перевод USDT по адресу {address} на сумму {f} ")
+
+                fr = tr.get('from')
+
+                time_ = dt.datetime.fromtimestamp(float(tr.get('block_timestamp', '')) / 1000)
+
+                result.append(f"{time_} | {f:>9.02f} {symbol} | {fr} > {to}")
 
     return "\n".join(result)
 
