@@ -10,5 +10,5 @@ def register_keyboard():
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     register_keyboard()
