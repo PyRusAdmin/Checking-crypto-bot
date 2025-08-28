@@ -35,7 +35,9 @@ db.create_tables([Users, Transactions], safe=True)
 db.close()
 
 
-def write_transaction(transaction_id, time, amount, symbol, from_transaction, to_transaction):
+def write_transaction(
+    transaction_id, time, amount, symbol, from_transaction, to_transaction
+):
     try:
         Transactions.create(
             transaction_id=transaction_id,
@@ -43,7 +45,7 @@ def write_transaction(transaction_id, time, amount, symbol, from_transaction, to
             amount=amount,
             symbol=symbol,
             from_transaction=from_transaction,
-            to_transaction=to_transaction
+            to_transaction=to_transaction,
         )
     except IntegrityError:
         logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
@@ -58,8 +60,8 @@ def write_database(id_user, user_name, last_name, first_name):
                 defaults={
                     "user_name": user_name,
                     "last_name": last_name,
-                    "first_name": first_name
-                }
+                    "first_name": first_name,
+                },
             )
             if not created:  # Если уже был в базе — обновим данные
                 user.user_name = user_name
@@ -67,6 +69,8 @@ def write_database(id_user, user_name, last_name, first_name):
                 user.first_name = first_name
                 user.save()
 
-        logger.info(f"Пользователь {id_user} {'зарегистрирован' if created else 'обновлён'} в базе данных.")
+        logger.info(
+            f"Пользователь {id_user} {'зарегистрирован' if created else 'обновлён'} в базе данных."
+        )
     except Exception as e:
         logger.error(f"Ошибка записи в базу: {e}")
