@@ -4,7 +4,7 @@ from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
-from keyboards.keyboards import back
+from keyboards.keyboards import back, main_keyboard
 from system.system import WALLET, WALLET_1, router
 from working_database.working_database import write_transaction
 
@@ -78,12 +78,18 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     await query.answer()  # убираем "часики" в Telegram
 
 
-@ router.callback_query(F.data == "transactions")
+@router.callback_query(F.data == "back")
+async def callback_back_handler(query: CallbackQuery) -> None:
+    """Выводит главное меню бота"""
+    await query.message.answer(text="Приветствуем в боте!", reply_markup=main_keyboard())
+
+
+@router.callback_query(F.data == "transactions")
 async def callback_transactions_handler(query: CallbackQuery) -> None:
-    wallet=[WALLET, WALLET_1]
+    wallet = [WALLET, WALLET_1]
 
     for wall in wallet:
-        transactions=get_tron_balance(address=wall)
+        transactions = get_tron_balance(address=wall)
         # исправил message → query.message
         await send_long_message(query.message, transactions)
 
@@ -91,3 +97,4 @@ async def callback_transactions_handler(query: CallbackQuery) -> None:
 def register_handler() -> None:
     router.callback_query.register(callback_register_handler)
     router.callback_query.register(callback_transactions_handler)
+    router.callback_query.register(callback_back_handler)
