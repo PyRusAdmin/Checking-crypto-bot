@@ -4,6 +4,7 @@ from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
+from keyboards.keyboards import back
 from system.system import WALLET, WALLET_1, router
 from working_database.working_database import write_transaction
 
@@ -55,7 +56,7 @@ def get_tron_balance(address: str) -> str:
 async def send_long_message(message: Message, text: str, chunk_size: int = 4000):
     """Отправляем длинное сообщение по кускам"""
     for i in range(0, len(text), chunk_size):
-        await message.answer(text[i: i + chunk_size])
+        await message.answer(text[i: i + chunk_size], reply_markup=back())
 
 
 @router.callback_query(F.data == "register")
@@ -72,16 +73,17 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     # если нужен write_database, оставь его вместо write_transaction
     write_transaction(id_user, user_name, last_name, first_name)
 
-    await query.message.answer("✅ Регистрация пройдена")
+    await query.message.answer("✅ Регистрация пройдена",
+                               reply_markup=back())   # <-- добавил сюда кнопку назад)
     await query.answer()  # убираем "часики" в Telegram
 
 
-@router.callback_query(F.data == "transactions")
+@ router.callback_query(F.data == "transactions")
 async def callback_transactions_handler(query: CallbackQuery) -> None:
-    wallet = [WALLET, WALLET_1]
+    wallet=[WALLET, WALLET_1]
 
     for wall in wallet:
-        transactions = get_tron_balance(address=wall)
+        transactions=get_tron_balance(address=wall)
         # исправил message → query.message
         await send_long_message(query.message, transactions)
 

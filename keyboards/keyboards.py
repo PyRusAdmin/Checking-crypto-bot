@@ -27,5 +27,18 @@ def main_keyboard():
     )
 
 
+def back():
+    """Клавиатура для возврата"""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Назад", callback_data="back")
+
+            ]
+        ]
+    )
+
+
 if __name__ == "__main__":
     register_keyboard()
