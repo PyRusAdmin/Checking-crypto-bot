@@ -13,7 +13,6 @@ from system.system import router, dp, bot
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-
     await bot.send_message(text="Приветствуем в боте!",
                            chat_id=message.chat.id, reply_markup=main_keyboard())
 

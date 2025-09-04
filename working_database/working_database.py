@@ -36,7 +36,7 @@ db.close()
 
 
 def write_transaction(
-    transaction_id, time, amount, symbol, from_transaction, to_transaction
+        transaction_id, time, amount, symbol, from_transaction, to_transaction
 ):
     try:
         Transactions.create(

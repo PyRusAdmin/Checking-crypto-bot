@@ -1,4 +1,5 @@
 import datetime as dt
+
 import requests
 from aiogram import F
 from aiogram.types import CallbackQuery, Message
@@ -22,7 +23,7 @@ def get_tron_balance(address: str) -> str:
 
     for _ in range(pages):
         r = requests.get(url, params=params, headers={
-                         "accept": "application/json"})
+            "accept": "application/json"})
         logger.info(r.json())
 
         params["fingerprint"] = r.json().get("meta", {}).get("fingerprint")
@@ -74,7 +75,7 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     write_transaction(id_user, user_name, last_name, first_name)
 
     await query.message.answer("✅ Регистрация пройдена",
-                               reply_markup=back())   # <-- добавил сюда кнопку назад)
+                               reply_markup=back())  # <-- добавил сюда кнопку назад)
     await query.answer()  # убираем "часики" в Telegram
 
 
