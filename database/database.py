@@ -2,7 +2,7 @@ from loguru import logger
 from peewee import *
 
 # Подключение к БД
-db = SqliteDatabase("people.db")
+db = SqliteDatabase("database/people.db")
 
 
 class Users(Model):
@@ -35,9 +35,7 @@ db.create_tables([Users, Transactions], safe=True)
 db.close()
 
 
-def write_transaction(
-        transaction_id, time, amount, symbol, from_transaction, to_transaction
-):
+def write_transaction(transaction_id, time, amount, symbol, from_transaction, to_transaction):
     try:
         Transactions.create(
             transaction_id=transaction_id,

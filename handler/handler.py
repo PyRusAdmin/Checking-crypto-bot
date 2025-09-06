@@ -7,7 +7,7 @@ from loguru import logger
 
 from keyboards.keyboards import back, main_keyboard
 from system.system import WALLET, WALLET_1, router
-from working_database.working_database import write_transaction
+from database.database import write_transaction
 
 
 def get_tron_balance(address: str) -> str:
@@ -94,7 +94,15 @@ async def callback_transactions_handler(query: CallbackQuery) -> None:
         await send_long_message(query.message, transactions)
 
 
+@router.callback_query(F.data == "today_transactions")
+async def callback_today_transactions_handler(query: CallbackQuery) -> None:
+    """Выводит транзакции за сегодня"""
+
+    await query.message.answer("⏳ Загрузка...", reply_markup=back())
+
+
 def register_handler() -> None:
-    router.callback_query.register(callback_register_handler)
-    router.callback_query.register(callback_transactions_handler)
-    router.callback_query.register(callback_back_handler)
+    router.callback_query.register(callback_register_handler)  # Регистрация
+    router.callback_query.register(callback_transactions_handler)  # Отправка транзакций
+    router.callback_query.register(callback_back_handler)  # Отправка главного меню
+    router.callback_query.register(callback_today_transactions_handler)  # Загрузка транзакций за сегодня
