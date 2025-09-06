@@ -5,9 +5,9 @@ from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
+from database.database import write_transaction
 from keyboards.keyboards import back, main_keyboard
 from system.system import WALLET, WALLET_1, router
-from database.database import write_transaction
 
 
 def get_tron_balance(address: str) -> str:
