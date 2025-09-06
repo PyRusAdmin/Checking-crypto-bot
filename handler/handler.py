@@ -45,7 +45,6 @@ def get_tron_balance(address: str) -> str:
                 result.append(
                     f"{time} | {amount:>9.02f} {symbol} | от {from_transaction}"
                 )
-
                 tx_id = tr.get("transaction_id")
                 write_transaction(
                     tx_id, time, amount, symbol, from_transaction, to_transaction
