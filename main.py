@@ -5,11 +5,12 @@ import sys
 
 from aiogram.filters import CommandStart
 from aiogram.types import Message
+from loguru import logger
 
 from handler.handler import register_handler
 from keyboards.keyboards import main_keyboard
 from system.system import router, dp, bot
-from loguru import logger
+
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
