@@ -37,9 +37,10 @@ db.close()
 
 async def read_from_db():
     """Функция для чтения данных из базы данных. Считываем данные из базы данных"""
-    db.connect()
-    rows = Transactions.select()  # Получаем все записи из таблицы employees
-    db.close()  # Закрываем подключение к базе данных
+    with db:
+        # db.connect()
+        rows = Transactions.select()  # Получаем все записи из таблицы employees
+    # db.close()  # Закрываем подключение к базе данных
     return rows
 
 

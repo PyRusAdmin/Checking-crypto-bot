@@ -94,12 +94,12 @@ async def fetch_tron_transactions(address: str) -> list:
     return "\n".join(result)
 
 
-def get_tron_balance(address: str) -> str:
+async def get_tron_balance(address: str) -> str:
     """Получаем транзакции и возвращаем как строку для отправки в бота"""
     result = [f"Транзакции USDT TRC20: {address}\n"]
 
     # Получаем все транзакции (новые будут записаны в БД автоматически)
-    transactions = fetch_tron_transactions(address)
+    transactions = await fetch_tron_transactions(address)
 
     # Формируем строку для вывода
     for tx in transactions:
@@ -151,7 +151,7 @@ async def callback_transactions_handler(query: CallbackQuery) -> None:
     wallet = [WALLET, WALLET_1]
 
     for wall in wallet:
-        transactions = get_tron_balance(address=wall)
+        transactions = await get_tron_balance(address=wall)
         # исправил message → query.message
         await send_long_message(query.message, transactions)
 
