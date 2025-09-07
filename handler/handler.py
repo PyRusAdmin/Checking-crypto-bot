@@ -63,7 +63,6 @@ async def monitor_wallets():
 
 async def fetch_tron_transactions(address: str) -> list:
     """Получает список новых (ещё не записанных в БД) транзакций для адреса"""
-    # new_transactions = []
     result = [f"Транзакции USDT TRC20: {address}\n"]
     url = f"https://api.trongrid.io/v1/accounts/{address}/transactions/trc20"  # УБРАЛ ПРОБЕЛЫ!
     pages = 1
@@ -90,27 +89,6 @@ async def fetch_tron_transactions(address: str) -> list:
                 tx_id = tr.get("transaction_id")
                 await write_transaction(tx_id, time, amount, symbol, from_transaction, to_transaction)
                 logger.info(f"Новая транзакция записана: {tx_id}")
-
-    return "\n".join(result)
-
-
-async def get_tron_balance(address: str) -> str:
-    """Получаем транзакции и возвращаем как строку для отправки в бота"""
-    result = [f"Транзакции USDT TRC20: {address}\n"]
-
-    # Получаем все транзакции (новые будут записаны в БД автоматически)
-    transactions = await fetch_tron_transactions(address)
-
-    # Формируем строку для вывода
-    for tx in transactions:
-        time_str = tx["time"].strftime("%Y-%m-%d %H:%M:%S")
-        result.append(
-            f"{time_str} | {tx['amount']:>9.02f} {tx['symbol']} | от {tx['from_address']}"
-        )
-
-    # Если новых нет — добавим сообщение
-    if len(result) == 1:
-        result.append("📭 Новых транзакций нет.")
 
     return "\n".join(result)
 
@@ -148,12 +126,22 @@ async def callback_back_handler(query: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "transactions")
 async def callback_transactions_handler(query: CallbackQuery) -> None:
-    wallet = [WALLET, WALLET_1]
+    wallet_addresses = [WALLET, WALLET_1]
+    full_message_parts = []
 
-    for wall in wallet:
-        transactions = await get_tron_balance(address=wall)
-        # исправил message → query.message
-        await send_long_message(query.message, transactions)
+    for address in wallet_addresses:
+        try:
+            transactions_text = await fetch_tron_transactions(address)
+            full_message_parts.append(transactions_text)
+        except Exception as e:
+            logger.error(f"Ошибка при получении транзакций для {address}: {e}")
+            full_message_parts.append(f"❌ Ошибка при загрузке транзакций для {address}")
+
+    # Объединяем всё в одно сообщение
+    full_message = "\n\n".join(full_message_parts)
+
+    # Отправляем единое сообщение (или разбиваем, если оно слишком длинное)
+    await send_long_message(query.message, full_message)
 
 
 @router.callback_query(F.data == "today_transactions")
