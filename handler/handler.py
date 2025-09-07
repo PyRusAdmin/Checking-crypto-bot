@@ -1,3 +1,4 @@
+import asyncio
 import datetime as dt
 from datetime import datetime
 
@@ -5,31 +6,76 @@ import requests
 from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
+from peewee import IntegrityError
 
-from database.database import write_transaction, read_from_db
+from database.database import read_from_db, Transactions
 from keyboards.keyboards import back, main_keyboard
-from system.system import WALLET, WALLET_1, router
+from system.system import WALLET, WALLET_1, router, bot
 
 
-def get_tron_balance(address: str) -> str:
-    """Получаем транзакции и возвращаем как строку для отправки в бота"""
+async def write_transaction(transaction_id, time, amount, symbol, from_transaction, to_transaction):
+    try:
+        Transactions.create(
+            transaction_id=transaction_id,
+            time=time,
+            amount=amount,
+            symbol=symbol,
+            from_transaction=from_transaction,
+            to_transaction=to_transaction,
+        )
+        await send_transaction_alert(transaction_id, time, amount, symbol, from_transaction, to_transaction)
+    except IntegrityError:
+        logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
+
+
+TARGET_USER_ID = 535185511  # ID пользователя, которому слать уведомления
+
+
+async def send_transaction_alert(transaction_id, time, amount, symbol, from_transaction, to_transaction):
+    """Отправляет уведомление о новой транзакции целевому пользователю"""
+    try:
+        message_text = (
+            f"💰 Новая транзакция!\n\n"
+            f"• Сумма: {amount} {symbol}\n"
+            f"• От: {from_transaction}\n"
+            f"• Время: {time}\n"
+            f"• Кошелек: {to_transaction}"
+        )
+        await bot.send_message(chat_id=TARGET_USER_ID, text=message_text)
+        logger.info(f"Уведомление отправлено пользователю {TARGET_USER_ID} о транзакции {transaction_id}")
+    except Exception as e:
+        logger.error(f"Не удалось отправить уведомление: {e}")
+
+
+async def monitor_wallets():
+    """Фоновая задача: проверяет кошельки каждую минуту и отправляет уведомления о новых транзакциях"""
+    wallets = [WALLET, WALLET_1]
+
+    while True:
+        try:
+            for address in wallets:
+                logger.info(f"Проверка кошелька: {address}")
+                await fetch_tron_transactions(address)
+        except Exception as e:
+            logger.error(f"Ошибка в фоновой задаче: {e}")
+        await asyncio.sleep(60)  # Ждём 60 секунд
+
+
+async def fetch_tron_transactions(address: str) -> list:
+    """Получает список новых (ещё не записанных в БД) транзакций для адреса"""
+    # new_transactions = []
     result = [f"Транзакции USDT TRC20: {address}\n"]
-
-    url = f"https://api.trongrid.io/v1/accounts/{address}/transactions/trc20"
-    pages = 3
+    url = f"https://api.trongrid.io/v1/accounts/{address}/transactions/trc20"  # УБРАЛ ПРОБЕЛЫ!
+    pages = 1
     params = {
         "only_confirmed": True,
         "limit": 20,
     }
-
     for _ in range(pages):
-        r = requests.get(url, params=params, headers={
-            "accept": "application/json"})
+        r = requests.get(url, params=params, headers={"accept": "application/json"})
         logger.info(r.json())
-
         params["fingerprint"] = r.json().get("meta", {}).get("fingerprint")
 
-        # оставляем только входящие транзакции
         for tr in r.json().get("data", []):
             to_transaction = tr.get("to")
             from_transaction = tr.get("from")
@@ -39,17 +85,32 @@ def get_tron_balance(address: str) -> str:
                 value = tr.get("value", "")
                 dec = -1 * int(tr.get("token_info", {}).get("decimals", "6"))
                 amount = float(value[:dec] + "." + value[dec:])
-
-                time = dt.datetime.fromtimestamp(
-                    float(tr.get("block_timestamp", 0)) / 1000
-                )
-                result.append(
-                    f"{time} | {amount:>9.02f} {symbol} | от {from_transaction}"
-                )
+                time = dt.datetime.fromtimestamp(float(tr.get("block_timestamp", 0)) / 1000)
+                result.append(f"{time} | {amount:>9.02f} {symbol} | от {from_transaction}")
                 tx_id = tr.get("transaction_id")
-                write_transaction(
-                    tx_id, time, amount, symbol, from_transaction, to_transaction
-                )
+                await write_transaction(tx_id, time, amount, symbol, from_transaction, to_transaction)
+                logger.info(f"Новая транзакция записана: {tx_id}")
+
+    return "\n".join(result)
+
+
+def get_tron_balance(address: str) -> str:
+    """Получаем транзакции и возвращаем как строку для отправки в бота"""
+    result = [f"Транзакции USDT TRC20: {address}\n"]
+
+    # Получаем все транзакции (новые будут записаны в БД автоматически)
+    transactions = fetch_tron_transactions(address)
+
+    # Формируем строку для вывода
+    for tx in transactions:
+        time_str = tx["time"].strftime("%Y-%m-%d %H:%M:%S")
+        result.append(
+            f"{time_str} | {tx['amount']:>9.02f} {tx['symbol']} | от {tx['from_address']}"
+        )
+
+    # Если новых нет — добавим сообщение
+    if len(result) == 1:
+        result.append("📭 Новых транзакций нет.")
 
     return "\n".join(result)
 
@@ -72,7 +133,7 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     )
 
     # если нужен write_database, оставь его вместо write_transaction
-    write_transaction(id_user, user_name, last_name, first_name)
+    await write_transaction(id_user, user_name, last_name, first_name)
 
     await query.message.answer("✅ Регистрация пройдена",
                                reply_markup=back())  # <-- добавил сюда кнопку назад)

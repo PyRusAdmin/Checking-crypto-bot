@@ -7,7 +7,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from loguru import logger
 
-from handler.handler import register_handler
+from handler.handler import register_handler, monitor_wallets
 from keyboards.keyboards import main_keyboard
 from system.system import router, dp, bot
 
@@ -20,6 +20,9 @@ async def command_start_handler(message: Message) -> None:
     logger.info(f"Пользователь {user_id} {user_username} начал работу с ботом")
     await bot.send_message(text="Приветствуем в боте!",
                            chat_id=message.chat.id, reply_markup=main_keyboard())
+
+    # Запускаем фоновую задачу
+    await asyncio.create_task(monitor_wallets())
 
 
 async def main() -> None:
