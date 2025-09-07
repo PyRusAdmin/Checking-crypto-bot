@@ -49,6 +49,14 @@ def write_transaction(transaction_id, time, amount, symbol, from_transaction, to
         logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
 
 
+async def read_from_db():
+    """Функция для чтения данных из базы данных. Считываем данные из базы данных"""
+    db.connect()
+    rows = Transactions.select()  # Получаем все записи из таблицы employees
+    db.close()  # Закрываем подключение к базе данных
+    return rows
+
+
 def write_database(id_user, user_name, last_name, first_name):
     """Сохраняем или обновляем данные пользователя"""
     try:

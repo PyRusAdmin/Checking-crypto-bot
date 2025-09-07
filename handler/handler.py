@@ -1,11 +1,12 @@
 import datetime as dt
+from datetime import datetime
 
 import requests
 from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
-from database.database import write_transaction
+from database.database import write_transaction, read_from_db
 from keyboards.keyboards import back, main_keyboard
 from system.system import WALLET, WALLET_1, router
 
@@ -99,6 +100,14 @@ async def callback_today_transactions_handler(query: CallbackQuery) -> None:
     """Выводит транзакции за сегодня"""
 
     await query.message.answer("⏳ Загрузка...", reply_markup=back())
+
+    rows = await read_from_db()
+
+    today = datetime.now().date()  # текущая дата без времени
+    today_transactions = []
+
+    for row in rows:
+        print(row.time)
 
 
 def register_handler() -> None:
