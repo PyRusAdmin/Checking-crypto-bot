@@ -103,11 +103,39 @@ async def callback_today_transactions_handler(query: CallbackQuery) -> None:
 
     rows = await read_from_db()
 
-    today = datetime.now().date()  # текущая дата без времени
+    today = datetime.now().date()
     today_transactions = []
 
     for row in rows:
-        print(row.time)
+        # Приводим row.time к дате
+        if isinstance(row.time, datetime):
+            transaction_date = row.time.date()
+        elif isinstance(row.time, str):
+            transaction_date = datetime.strptime(row.time[:10], "%Y-%m-%d").date()
+        else:
+            continue
+
+        if transaction_date == today:
+            today_transactions.append(row)
+
+    # Формируем ответ
+    if today_transactions:
+        response = "📌 Транзакции за сегодня:\n\n"
+        for t in today_transactions:
+            amount = getattr(t, 'amount', 0.0)
+            symbol = getattr(t, 'symbol', '???')  # <-- ИСПРАВЛЕНО: было currency → теперь symbol
+            # Форматируем время
+            if isinstance(t.time, datetime):
+                time_str = t.time.strftime("%H:%M")
+            elif isinstance(t.time, str) and ' ' in t.time:
+                time_str = t.time.split()[1]
+            else:
+                time_str = "???"
+
+            response += f"• {amount:.2f} {symbol} — {time_str}\n"
+        await query.message.answer(response, reply_markup=back())
+    else:
+        await query.message.answer("📭 Сегодня транзакций нет.", reply_markup=back())
 
 
 def register_handler() -> None:
