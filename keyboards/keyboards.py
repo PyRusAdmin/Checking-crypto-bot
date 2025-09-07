@@ -38,7 +38,3 @@ def back():
             ]
         ]
     )
-
-
-if __name__ == "__main__":
-    register_keyboard()
