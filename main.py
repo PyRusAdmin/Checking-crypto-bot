@@ -22,8 +22,7 @@ async def command_start_handler(message: Message) -> None:
     await bot.send_message(text="Приветствуем в боте!",
                            chat_id=message.chat.id, reply_markup=main_keyboard())
 
-    # Запускаем фоновую задачу
-    await asyncio.create_task(monitor_wallets())
+    await asyncio.create_task(monitor_wallets())  # Запускаем фоновую задачу
 
 
 async def main() -> None:
