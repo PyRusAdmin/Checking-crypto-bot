@@ -7,6 +7,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from loguru import logger
 
+from database.database import save_bot_user
 from handler.handler import register_handler, monitor_wallets
 from keyboards.keyboards import main_keyboard
 from system.system import router, dp, bot
@@ -15,9 +16,8 @@ from system.system import router, dp, bot
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     """Отвечает на команду /start"""
-    user_id = message.from_user.id
-    user_username = message.from_user.username
-    logger.info(f"Пользователь {user_id} {user_username} начал работу с ботом")
+    logger.info(f"Пользователь {message.from_user.id} {message.from_user.username} начал работу с ботом")
+    await save_bot_user(message)
 
     await bot.send_message(text="Приветствуем в боте!",
                            chat_id=message.chat.id, reply_markup=main_keyboard())
