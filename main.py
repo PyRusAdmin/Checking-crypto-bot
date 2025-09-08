@@ -18,6 +18,7 @@ async def command_start_handler(message: Message) -> None:
     user_id = message.from_user.id
     user_username = message.from_user.username
     logger.info(f"Пользователь {user_id} {user_username} начал работу с ботом")
+
     await bot.send_message(text="Приветствуем в боте!",
                            chat_id=message.chat.id, reply_markup=main_keyboard())
 
