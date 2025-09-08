@@ -11,6 +11,7 @@ class Users(Model):
     user_name = TextField(null=True)  # Username пользователя
     last_name = TextField(null=True)  # Фамилия пользователя
     first_name = TextField(null=True)  # Имя пользователя
+    status = CharField(default=False) # Разрешение для пользователя
 
     class Meta:
         database = db
@@ -102,7 +103,7 @@ async def read_from_db():
     return rows
 
 
-def write_database(id_user, user_name, last_name, first_name):
+def write_database(id_user, user_name, last_name, first_name, status):
     """Сохраняем или обновляем данные пользователя"""
     try:
         with db:
@@ -112,12 +113,14 @@ def write_database(id_user, user_name, last_name, first_name):
                     "user_name": user_name,
                     "last_name": last_name,
                     "first_name": first_name,
+                    "status": status
                 },
             )
             if not created:  # Если уже был в базе — обновим данные
                 user.user_name = user_name
                 user.last_name = last_name
                 user.first_name = first_name
+                user.status = status
                 user.save()
 
         logger.info(
@@ -134,3 +137,8 @@ def transaction_exists(tx_id: str) -> bool:
     except Exception as e:
         logger.error(f"Ошибка при проверке транзакции {tx_id}: {e}")
         return False
+
+def is_user_exists(id_user: int) -> bool:
+    """Проверяет зарегистрирован пользователь или нет"""
+    user = Users.get_or_none(Users.id_user == id_user)
+    return user is not None

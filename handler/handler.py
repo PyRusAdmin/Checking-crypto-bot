@@ -101,7 +101,6 @@ async def send_long_message(message: Message, text: str, chunk_size: int = 4000)
 
 @router.callback_query(F.data == "register")
 async def callback_register_handler(query: CallbackQuery) -> None:
-
     logger.debug(
         f"ID: {query.from_user.id}, username: {query.from_user.username}, last_name: {query.from_user.last_name}, first_name: {query.from_user.first_name}"
     )
@@ -110,7 +109,7 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     await write_transaction(query.from_user.id, query.from_user.username, query.from_user.last_name,
                             query.from_user.first_name)
 
-    await query.message.answer("✅ Регистрация пройдена",
+    await query.message.answer("✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
                                reply_markup=back())  # <-- добавил сюда кнопку назад)
     await query.answer()  # убираем "часики" в Telegram
 

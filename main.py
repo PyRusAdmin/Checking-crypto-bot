@@ -7,9 +7,9 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from loguru import logger
 
-from database.database import save_bot_user
+from database.database import save_bot_user, is_user_exists
 from handler.handler import register_handler, monitor_wallets
-from keyboards.keyboards import main_keyboard
+from keyboards.keyboards import main_keyboard, register_keyboard
 from system.system import router, dp, bot
 
 
@@ -17,10 +17,23 @@ from system.system import router, dp, bot
 async def command_start_handler(message: Message) -> None:
     """Отвечает на команду /start"""
     logger.info(f"Пользователь {message.from_user.id} {message.from_user.username} начал работу с ботом")
-    await save_bot_user(message)
+    await save_bot_user(message)  # Записываем пользователя, который запустил бота.
+    # user = is_user_exists(id_user=message.from_user.id)
 
-    await bot.send_message(text="Приветствуем в боте!",
-                           chat_id=message.chat.id, reply_markup=main_keyboard())
+    if is_user_exists(id_user=message.from_user.id):
+        print("Пользователь найден ✅")
+        await bot.send_message(
+            text="Приветствуем в боте!",
+            chat_id=message.chat.id,
+            reply_markup=main_keyboard()
+        )
+    else:
+        print("Пользователь отсутствует ❌")
+        await bot.send_message(
+            text="Для работы с ботом, нужно пройти небольшую регистрацию",
+            chat_id=message.chat.id,
+            reply_markup=register_keyboard()
+        )
 
     await asyncio.create_task(monitor_wallets())  # Запускаем фоновую задачу
 
