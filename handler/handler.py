@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery, Message
 from loguru import logger
 from peewee import IntegrityError
 
-from database.database import read_from_db, Transactions
+from database.database import read_from_db, Transactions, write_database
 from keyboards.keyboards import back, main_keyboard
 from system.system import WALLET, WALLET_1, router, bot
 
@@ -105,9 +105,9 @@ async def callback_register_handler(query: CallbackQuery) -> None:
         f"ID: {query.from_user.id}, username: {query.from_user.username}, last_name: {query.from_user.last_name}, first_name: {query.from_user.first_name}"
     )
 
-    # если нужен write_database, оставь его вместо write_transaction
-    await write_transaction(query.from_user.id, query.from_user.username, query.from_user.last_name,
-                            query.from_user.first_name)
+    write_database(id_user=query.from_user.id, user_name=query.from_user.username,
+                         last_name=query.from_user.last_name,
+                         first_name=query.from_user.first_name, status="False")
 
     await query.message.answer("✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
                                reply_markup=back())  # <-- добавил сюда кнопку назад)
