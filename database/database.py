@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from aiogram.utils.chat_member import USERS
 from loguru import logger
 from peewee import SqliteDatabase, Model, IntegerField, TextField, DateTimeField, FloatField, CharField
 

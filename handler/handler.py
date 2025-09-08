@@ -9,7 +9,7 @@ from loguru import logger
 from peewee import IntegrityError
 
 from database.database import read_from_db, Transactions, write_database
-from keyboards.keyboards import back, main_keyboard
+from keyboards.keyboards import back, main_keyboard, confirmation_keyboard
 from system.system import WALLET, WALLET_1, router, bot
 
 
@@ -105,13 +105,40 @@ async def callback_register_handler(query: CallbackQuery) -> None:
         f"ID: {query.from_user.id}, username: {query.from_user.username}, last_name: {query.from_user.last_name}, first_name: {query.from_user.first_name}"
     )
 
-    write_database(id_user=query.from_user.id, user_name=query.from_user.username,
-                         last_name=query.from_user.last_name,
-                         first_name=query.from_user.first_name, status="False")
-
+    write_database(
+        id_user=query.from_user.id,
+        user_name=query.from_user.username,
+        last_name=query.from_user.last_name,
+        first_name=query.from_user.first_name,
+        status="False"
+    )
+    # Сообщение самому пользователю
     await query.message.answer("✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
                                reply_markup=back())  # <-- добавил сюда кнопку назад)
     await query.answer()  # убираем "часики" в Telegram
+
+    # Сообщение админу
+    await bot.send_message(
+        TARGET_USER_ID,
+        f"Пользователь @{query.from_user.username or query.from_user.id} "
+        f"отправил данные для подтверждения",
+        reply_markup=confirmation_keyboard(),
+    )
+
+
+@router.callback_query(F.data.startswith("confirm:"))
+async def confirm_user(query: CallbackQuery) -> None:
+    target_id = int(query.data.split(":")[1])  # достаем id пользователя
+
+    write_database(
+        id_user=target_id,
+        user_name=None,  # меняем только статус
+        last_name=None,
+        first_name=None,
+        status="True"
+    )
+
+    await query.message.answer(f"✅ Пользователь {target_id} подтвержден.")
 
 
 @router.callback_query(F.data == "back")
@@ -188,3 +215,4 @@ def register_handler() -> None:
     router.callback_query.register(callback_transactions_handler)  # Отправка транзакций
     router.callback_query.register(callback_back_handler)  # Отправка главного меню
     router.callback_query.register(callback_today_transactions_handler)  # Загрузка транзакций за сегодня
+    router.callback_query.register(confirm_user) # Подтверждение регистрации

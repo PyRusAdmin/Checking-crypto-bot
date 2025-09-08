@@ -1,4 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.filters import inline_keyboard
 
 
 def register_keyboard():
@@ -35,6 +36,21 @@ def back():
                 InlineKeyboardButton(
                     text="Назад", callback_data="back")
 
+            ]
+        ]
+    )
+
+def confirmation_keyboard():
+    """Клавиатура для подтверждения регистрации"""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Подтвердить", callback_data="confirm"
+                ),
+                InlineKeyboardButton(
+                    text="Отклонить", callback_data="reject"
+                )
             ]
         ]
     )
