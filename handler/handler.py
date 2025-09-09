@@ -113,8 +113,10 @@ async def callback_register_handler(query: CallbackQuery) -> None:
         status="False"
     )
     # Сообщение самому пользователю
-    await query.message.answer("✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
-                               reply_markup=back())  # <-- добавил сюда кнопку назад)
+    await query.message.answer(
+        "✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
+        reply_markup=back()
+    )
     await query.answer()  # убираем "часики" в Telegram
 
     # Сообщение админу
@@ -215,4 +217,4 @@ def register_handler() -> None:
     router.callback_query.register(callback_transactions_handler)  # Отправка транзакций
     router.callback_query.register(callback_back_handler)  # Отправка главного меню
     router.callback_query.register(callback_today_transactions_handler)  # Загрузка транзакций за сегодня
-    router.callback_query.register(confirm_user) # Подтверждение регистрации
+    router.callback_query.register(confirm_user)  # Подтверждение регистрации
