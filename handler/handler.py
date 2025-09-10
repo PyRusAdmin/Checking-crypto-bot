@@ -58,7 +58,7 @@ async def monitor_wallets():
                 await fetch_tron_transactions(address)
         except Exception as e:
             logger.error(f"Ошибка в фоновой задаче: {e}")
-        await asyncio.sleep(60)  # Ждём 60 секунд
+        await asyncio.sleep(2*60)  # Ждём 60 секунд
 
 
 async def fetch_tron_transactions(address: str) -> list:
