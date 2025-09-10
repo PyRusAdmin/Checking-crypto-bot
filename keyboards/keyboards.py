@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from pyrogram.filters import inline_keyboard
 
 
 def register_keyboard():
@@ -39,6 +39,7 @@ def back():
             ]
         ]
     )
+
 
 def confirmation_keyboard():
     """Клавиатура для подтверждения регистрации"""

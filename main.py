@@ -2,14 +2,15 @@
 import asyncio
 import logging
 import sys
-
+import subprocess
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from loguru import logger
 
 from database.database import save_bot_user, is_user_exists, is_user_status
-from handler.handler import register_handler, monitor_wallets
+from handler.handler import register_handler
 from keyboards.keyboards import main_keyboard, register_keyboard
+from monitor_wallets.monitor_wallets import monitor_wallets
 from system.system import router, dp, bot
 
 
@@ -44,16 +45,15 @@ async def command_start_handler(message: Message) -> None:
             reply_markup=register_keyboard()
         )
 
-    await asyncio.create_task(monitor_wallets())  # Запускаем фоновую задачу
-
 
 async def main() -> None:
     # Запускаем бота
     register_handler()
-
+    await monitor_wallets()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())
+    # asyncio.create_task(monitor_wallets())  # Запускаем фоновую задачу
