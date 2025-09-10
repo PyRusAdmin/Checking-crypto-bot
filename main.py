@@ -1,59 +1,26 @@
 # -*- coding: utf-8 -*-
-import asyncio
-import logging
-import sys
+import os
 import subprocess
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-from loguru import logger
+import sys
 
-from database.database import save_bot_user, is_user_exists, is_user_status
-from handler.handler import register_handler
-from keyboards.keyboards import main_keyboard, register_keyboard
-from monitor_wallets.monitor_wallets import monitor_wallets
-from system.system import router, dp, bot
+# Путь к корню проекта (где находится scr/)
+project_root = os.path.dirname(os.path.abspath(__file__))
 
+# Команды с указанием PYTHONPATH
+commands = [
+    [sys.executable, "bot.py"],  # запускает бота
+    [sys.executable, "parser/parser.py"],  # запускает парсер и сервера
+]
 
-@router.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    """Отвечает на команду /start"""
-    logger.info(f"Пользователь {message.from_user.id} {message.from_user.username} начал работу с ботом")
-    await save_bot_user(message)  # Записываем пользователя, который запустил бота.
-    # user = is_user_exists(id_user=message.from_user.id)
+# Установить PYTHONPATH на корень проекта
+env = os.environ.copy()
+env["PYTHONPATH"] = project_root
 
-    if is_user_exists(id_user=message.from_user.id):
-        print("Пользователь найден ✅")
+processes = [subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE) for cmd in commands]
 
-        status = is_user_status(id_user=message.from_user.id)
-        if status == "False":
-            await bot.send_message(
-                text="Дождитесь одобрения регистрации администратором",
-                chat_id=message.chat.id,
-                # reply_markup=register_keyboard()
-            )
-        else:
-            await bot.send_message(
-                text="Приветствуем в боте!",
-                chat_id=message.chat.id,
-                reply_markup=main_keyboard()
-            )
-    else:
-        print("Пользователь отсутствует ❌")
-        await bot.send_message(
-            text="Для работы с ботом, нужно пройти небольшую регистрацию",
-            chat_id=message.chat.id,
-            reply_markup=register_keyboard()
-        )
-
-
-async def main() -> None:
-    # Запускаем бота
-    register_handler()
-    await monitor_wallets()
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    asyncio.run(main())
-    # asyncio.create_task(monitor_wallets())  # Запускаем фоновую задачу
+for p in processes:
+    out, err = p.communicate()
+    if out:
+        print(out.decode())
+    if err:
+        print("Ошибка:", err.decode())

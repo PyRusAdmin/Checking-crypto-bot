@@ -4,8 +4,26 @@ import datetime as dt
 
 import requests
 from loguru import logger
+from peewee import IntegrityError
 
+from database.database import Transactions
+from handler.sending_message import send_transaction_alert
 from system.system import WALLET, WALLET_1
+
+
+async def write_transaction(transaction_id, time, amount, symbol, from_transaction, to_transaction):
+    try:
+        Transactions.create(
+            transaction_id=transaction_id,
+            time=time,
+            amount=amount,
+            symbol=symbol,
+            from_transaction=from_transaction,
+            to_transaction=to_transaction,
+        )
+        await send_transaction_alert(transaction_id, time, amount, symbol, from_transaction, to_transaction)
+    except IntegrityError:
+        logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
 
 
 async def fetch_tron_transactions(address: str) -> list:
@@ -52,3 +70,7 @@ async def monitor_wallets():
         except Exception as e:
             logger.error(f"Ошибка в фоновой задаче: {e}")
         await asyncio.sleep(2 * 60)  # Ждём 60 секунд
+
+
+if __name__ == "__main__":
+    asyncio.run(monitor_wallets())

@@ -4,46 +4,11 @@ from datetime import datetime
 from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
-from peewee import IntegrityError
 
-from database.database import read_from_db, Transactions, write_database
+from database.database import read_from_db, write_database
 from keyboards.keyboards import back, main_keyboard, confirmation_keyboard
-from monitor_wallets.monitor_wallets import fetch_tron_transactions
+from parser.parser import fetch_tron_transactions
 from system.system import WALLET, WALLET_1, router, bot
-
-
-async def write_transaction(transaction_id, time, amount, symbol, from_transaction, to_transaction):
-    try:
-        Transactions.create(
-            transaction_id=transaction_id,
-            time=time,
-            amount=amount,
-            symbol=symbol,
-            from_transaction=from_transaction,
-            to_transaction=to_transaction,
-        )
-        await send_transaction_alert(transaction_id, time, amount, symbol, from_transaction, to_transaction)
-    except IntegrityError:
-        logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
-
-
-TARGET_USER_ID = 535185511  # ID пользователя, которому слать уведомления
-
-
-async def send_transaction_alert(transaction_id, time, amount, symbol, from_transaction, to_transaction):
-    """Отправляет уведомление о новой транзакции целевому пользователю"""
-    try:
-        message_text = (
-            f"💰 Новая транзакция!\n\n"
-            f"• Сумма: {amount} {symbol}\n"
-            f"• От: {from_transaction}\n"
-            f"• Время: {time}\n"
-            f"• Кошелек: {to_transaction}"
-        )
-        await bot.send_message(chat_id=TARGET_USER_ID, text=message_text)
-        logger.info(f"Уведомление отправлено пользователю {TARGET_USER_ID} о транзакции {transaction_id}")
-    except Exception as e:
-        logger.error(f"Не удалось отправить уведомление: {e}")
 
 
 async def send_long_message(message: Message, text: str, chunk_size: int = 4000):
