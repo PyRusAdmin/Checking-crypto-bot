@@ -21,7 +21,7 @@ async def command_start_handler(message: Message) -> None:
     # user = is_user_exists(id_user=message.from_user.id)
 
     if is_user_exists(id_user=message.from_user.id):
-        print("Пользователь найден ✅")
+        logger.info("Пользователь найден ✅")
 
         status = is_user_status(id_user=message.from_user.id)
         if status == "False":
@@ -37,7 +37,7 @@ async def command_start_handler(message: Message) -> None:
                 reply_markup=main_keyboard()
             )
     else:
-        print("Пользователь отсутствует ❌")
+        logger.info("Пользователь отсутствует ❌")
         await bot.send_message(
             text="Для работы с ботом, нужно пройти небольшую регистрацию",
             chat_id=message.chat.id,

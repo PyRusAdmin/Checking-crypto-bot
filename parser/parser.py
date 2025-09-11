@@ -21,6 +21,7 @@ async def write_transaction(transaction_id, time, amount, symbol, from_transacti
             from_transaction=from_transaction,
             to_transaction=to_transaction,
         )
+        logger.info(f"Новая транзакция записана: {transaction_id}")
         await send_transaction_alert(transaction_id, time, amount, symbol, from_transaction, to_transaction)
     except IntegrityError:
         logger.info(f"Транзакция {transaction_id} уже существует, пропускаем")
@@ -37,7 +38,7 @@ async def fetch_tron_transactions(address: str) -> list:
     }
     for _ in range(pages):
         r = requests.get(url, params=params, headers={"accept": "application/json"})
-        logger.info(r.json())
+        # logger.info(r.json())
         params["fingerprint"] = r.json().get("meta", {}).get("fingerprint")
 
         for tr in r.json().get("data", []):
@@ -53,7 +54,6 @@ async def fetch_tron_transactions(address: str) -> list:
                 result.append(f"{time} | {amount:>9.02f} {symbol} | от {from_transaction}")
                 tx_id = tr.get("transaction_id")
                 await write_transaction(tx_id, time, amount, symbol, from_transaction, to_transaction)
-                logger.info(f"Новая транзакция записана: {tx_id}")
 
     return "\n".join(result)
 

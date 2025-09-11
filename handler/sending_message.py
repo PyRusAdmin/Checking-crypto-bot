@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from loguru import logger
 
 from system.system import bot, TARGET_USER_ID

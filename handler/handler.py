@@ -52,7 +52,10 @@ async def callback_register_handler(query: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("confirm:"))
 async def confirm_user(query: CallbackQuery) -> None:
+    """Подтверждение регистрации администратором бота"""
     target_id = int(query.data.split(":")[1])  # достаем id пользователя
+
+    logger.debug(f"Подтверждение регистрации пользователя: {target_id}")
 
     write_database(
         id_user=target_id,  # меняем только id

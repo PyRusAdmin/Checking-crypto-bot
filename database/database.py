@@ -11,7 +11,7 @@ class Users(Model):
     user_name = TextField(null=True)  # Username пользователя
     last_name = TextField(null=True)  # Фамилия пользователя
     first_name = TextField(null=True)  # Имя пользователя
-    status = CharField(default=False) # Разрешение для пользователя
+    status = CharField(default=False)  # Разрешение для пользователя
 
     class Meta:
         database = db
@@ -90,10 +90,10 @@ async def save_bot_user(message):
             user.language_code = lang
             user.save()
 
-        print(f"✅ Пользователь {user_id} сохранён в БД (new={created})")
+        logger.info(f"✅ Пользователь {user_id} сохранён в БД (new={created})")
 
     except Exception as e:
-        print(f"❌ Ошибка при сохранении пользователя: {e}")
+        logger.info(f"❌ Ошибка при сохранении пользователя: {e}")
 
 
 async def read_from_db():
@@ -138,10 +138,12 @@ def transaction_exists(tx_id: str) -> bool:
         logger.error(f"Ошибка при проверке транзакции {tx_id}: {e}")
         return False
 
+
 def is_user_exists(id_user: int) -> bool:
     """Проверяет зарегистрирован пользователь или нет"""
     user = Users.get_or_none(Users.id_user == id_user)
     return user is not None
+
 
 def is_user_status(id_user: int) -> bool:
     """Проверяет статус пользователя"""
