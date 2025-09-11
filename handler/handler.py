@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
 from database.database import read_from_db, write_database
-from keyboards.keyboards import back, main_keyboard, confirmation_keyboard
+from keyboards.keyboards import back, confirmation_keyboard
 from parser.parser import fetch_tron_transactions
 from system.system import WALLET, WALLET_1, router, bot, TARGET_USER_ID
 
@@ -71,12 +71,6 @@ async def confirm_user(query: CallbackQuery) -> None:
     )
 
     await query.message.answer(f"✅ Пользователь {target_id} подтвержден.")
-
-
-@router.callback_query(F.data == "back")
-async def callback_back_handler(query: CallbackQuery) -> None:
-    """Выводит главное меню бота"""
-    await query.message.answer(text="Приветствуем в боте!", reply_markup=main_keyboard())
 
 
 @router.callback_query(F.data == "transactions")
@@ -145,6 +139,5 @@ async def callback_today_transactions_handler(query: CallbackQuery) -> None:
 def register_handler() -> None:
     router.callback_query.register(callback_register_handler)  # Регистрация
     router.callback_query.register(callback_transactions_handler)  # Отправка транзакций
-    router.callback_query.register(callback_back_handler)  # Отправка главного меню
     router.callback_query.register(callback_today_transactions_handler)  # Загрузка транзакций за сегодня
     router.callback_query.register(confirm_user)  # Подтверждение регистрации
