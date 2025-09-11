@@ -41,16 +41,16 @@ def back():
     )
 
 
-def confirmation_keyboard():
+def confirmation_keyboard(user_id: int):
     """Клавиатура для подтверждения регистрации"""
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Подтвердить", callback_data="confirm"
+                    text="Подтвердить", callback_data=f"confirm:{user_id}"
                 ),
                 InlineKeyboardButton(
-                    text="Отклонить", callback_data="reject"
+                    text="Отклонить", callback_data=f"reject:{user_id}"
                 )
             ]
         ]

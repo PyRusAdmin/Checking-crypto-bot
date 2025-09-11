@@ -18,6 +18,8 @@ logger.debug(f"TOKEN: {TOKEN}, WALLET: {WALLET}, WALLET_1: {WALLET_1}")
 
 TARGET_USER_ID = 535185511  # ID пользователя, которому слать уведомления
 
+UserSendMessage = [535185511, 301634256]
+
 # Создаём роутер
 router = Router()
 
