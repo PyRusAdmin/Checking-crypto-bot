@@ -28,10 +28,8 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     По умолчанию статус "False", так как нужно подтверждение регистрации от администратора телеграмм бота. 
     После подтверждения регистрации статус меняется на "True".
     """
-    if query.from_user.id in TARGET_USER_ID:
-        status = "True"
-    else:
-        status = "False"
+    # если пользователь сам админ → сразу True
+    status = "True" if query.from_user.id in TARGET_USER_ID else "False"
 
     write_database(
         id_user=query.from_user.id,  # id пользователя
@@ -45,11 +43,12 @@ async def callback_register_handler(query: CallbackQuery) -> None:
         text="✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
     )
 
-    # Сообщение админам
+    # Сообщение всем админам
     for admin_id in TARGET_USER_ID:
         await bot.send_message(
-            chat_id=admin_id,
-            text=f"Пользователь @{query.from_user.username or query.from_user.id} отправил данные для подтверждения регистрации.\n",
+            chat_id=admin_id,  # здесь точно int, не список!
+            text=f"Пользователь @{query.from_user.username or query.from_user.id} "
+                 f"отправил данные для подтверждения регистрации.\n",
             reply_markup=confirmation_keyboard(query.from_user.id),
         )
 

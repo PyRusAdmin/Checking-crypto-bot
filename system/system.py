@@ -16,7 +16,7 @@ WALLET_1 = os.getenv("WALLET_1")  # Получаем кошелек пользо
 
 logger.debug(f"TOKEN: {TOKEN}, WALLET: {WALLET}, WALLET_1: {WALLET_1}")
 
-TARGET_USER_ID = [535185511, 301634256]  # ID пользователя, которому слать уведомления
+TARGET_USER_ID = [535185511, 301634256]  # список ID админов
 
 UserSendMessage = [535185511, 301634256]
 
