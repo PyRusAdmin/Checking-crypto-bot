@@ -16,11 +16,17 @@ commands = [
 env = os.environ.copy()
 env["PYTHONPATH"] = project_root
 
-processes = [subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE) for cmd in commands]
+processes = [
+    subprocess.Popen(cmd, env=env) for cmd in commands
+]
 
-for p in processes:
-    out, err = p.communicate()
-    if out:
-        print(out.decode())
-    if err:
-        print("Ошибка:", err.decode())
+"""Раскомментировать для отслеживания ошибок запуска"""
+
+# processes = [subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE) for cmd in commands]
+#
+# for p in processes:
+#     out, err = p.communicate()
+#     if out:
+#         print(out.decode())
+#     if err:
+#         print("Ошибка:", err.decode())
