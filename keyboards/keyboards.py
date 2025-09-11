@@ -34,7 +34,7 @@ def back():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Назад", callback_data="back")
+                    text="Главное меню", callback_data="back")
 
             ]
         ]

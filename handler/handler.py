@@ -28,7 +28,7 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     По умолчанию статус "False", так как нужно подтверждение регистрации от администратора телеграмм бота. 
     После подтверждения регистрации статус меняется на "True".
     """
-    if query.from_user.id == TARGET_USER_ID:
+    if query.from_user.id in TARGET_USER_ID:
         status = "True"
     else:
         status = "False"
@@ -43,16 +43,15 @@ async def callback_register_handler(query: CallbackQuery) -> None:
     # Сообщение самому пользователю
     await query.message.answer(
         text="✅ Регистрация пройдена. Ожидайте подтверждения от администратора.",
-        reply_markup=back()
     )
-    # await query.answer()  # убираем "часики" в Telegram
 
-    # Сообщение админу
-    await bot.send_message(
-        chat_id=TARGET_USER_ID,
-        text=f"Пользователь @{query.from_user.username or query.from_user.id} отправил данные для подтверждения регистрации.\n",
-        reply_markup=confirmation_keyboard(query.from_user.id),
-    )
+    # Сообщение админам
+    for admin_id in TARGET_USER_ID:
+        await bot.send_message(
+            chat_id=admin_id,
+            text=f"Пользователь @{query.from_user.username or query.from_user.id} отправил данные для подтверждения регистрации.\n",
+            reply_markup=confirmation_keyboard(query.from_user.id),
+        )
 
 
 @router.callback_query(F.data.startswith("confirm:"))
@@ -71,6 +70,11 @@ async def confirm_user(query: CallbackQuery) -> None:
     )
 
     await query.message.answer(f"✅ Пользователь {target_id} подтвержден.")
+    await bot.send_message(
+        chat_id=target_id,
+        text="✅ Ваша регистрация подтверждена.",
+        reply_markup=back(),
+    )
 
 
 @router.callback_query(F.data == "transactions")

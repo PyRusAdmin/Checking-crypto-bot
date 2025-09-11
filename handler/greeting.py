@@ -41,6 +41,7 @@ async def command_start_handler(message: Message) -> None:
             reply_markup=register_keyboard()
         )
 
+
 @router.callback_query(F.data == "back")
 async def callback_back_handler(query: CallbackQuery) -> None:
     """Выводит главное меню бота"""
