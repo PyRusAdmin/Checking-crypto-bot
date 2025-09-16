@@ -155,7 +155,6 @@
 #                     )
 #         else:
 #             print(f"❌ Ошибка для типа {t_type}: {response.text}")
-#
 #     if not found_any:
 #         print("Нет переводов ни по одному из типов.")
 # # --- Запуск ---
