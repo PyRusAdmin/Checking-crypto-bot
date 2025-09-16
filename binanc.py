@@ -158,8 +158,6 @@
 #
 #     if not found_any:
 #         print("Нет переводов ни по одному из типов.")
-#
-#
 # # --- Запуск ---
 # if __name__ == '__main__':
 #     get_spot_balance()
