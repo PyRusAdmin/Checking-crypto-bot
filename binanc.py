@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 from binance import Client
 
-from system.system import api_secret
-from system.system import api_key
+from proxy import setup_proxy
+from system.system import api_secret, api_key
 
-api_key = api_key
-secret_key = api_secret
 
-client = Client(api_key=api_key, api_secret=secret_key)
-account = client.get_account()
+def parse_binance():
+    setup_proxy()
 
-for bal in account["balances"]:
-    if float(bal['free']) > 0.0:
-        print(f"{bal['asset'].ljust(10, '-')} {float(bal['free']):.3f}")
+    client = Client(api_key=api_key, api_secret=api_secret)
+    account = client.get_account()
+
+    for bal in account["balances"]:
+        if float(bal['free']) > 0.0:
+            print(f"{bal['asset'].ljust(10, '-')} {float(bal['free']):.3f}")
+
+
+if __name__ == '__main__':
+    parse_binance()
