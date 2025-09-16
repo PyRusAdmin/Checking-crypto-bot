@@ -18,8 +18,14 @@ WALLET_1 = os.getenv("WALLET_1")  # Получаем кошелек пользо
 api_key = os.getenv("api_key")
 api_secret = os.getenv("api_secret")
 
+user = os.getenv("USER")  # Пользователь для прокси
+password = os.getenv("PASSWORD")  # Пароль для прокси
+port = os.getenv("PORT")  # Порт для прокси
+ip = os.getenv("IP")  # IP адрес прокси
+
 logger.debug(f"TOKEN: {TOKEN}, WALLET: {WALLET}, WALLET_1: {WALLET_1}")
 logger.debug(f"api_key: {api_key}, api_secret: {api_secret}")
+logger.debug(f"user: {user}, password: {password}, port: {port}, ip: {ip}")
 
 TARGET_USER_ID = [535185511, 301634256]  # список ID админов
 

@@ -2,11 +2,11 @@
 from binance import Client
 
 from proxy import setup_proxy
-from system.system import api_secret, api_key
+from system.system import api_secret, api_key, user, password, ip, port
 
 
 def parse_binance():
-    setup_proxy()
+    setup_proxy(user=user, password=password, ip=ip, port=port)
 
     client = Client(api_key=api_key, api_secret=api_secret)
     account = client.get_account()
