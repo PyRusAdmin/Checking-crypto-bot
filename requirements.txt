@@ -3,3 +3,4 @@ python-dotenv
 peewee
 loguru
 requests
+python-binance
