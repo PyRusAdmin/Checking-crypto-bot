@@ -12,10 +12,6 @@ from proxy import setup_proxy
 from system.system import api_key, api_secret, user, password, ip, port, router
 
 
-# Создаём роутер (если не импортируете из system)
-# router = Router()
-
-
 def get_wallet_balance(api_key, secret_key, quote_asset="USDT"):
     """
     Получает баланс по всем кошелькам Binance в указанной валюте.
