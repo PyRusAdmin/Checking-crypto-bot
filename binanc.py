@@ -174,8 +174,10 @@ import requests
 from proxy import setup_proxy
 from system.system import user, password, ip, port, api_key, api_secret
 
-API_KEY = "ВАШ_API_KEY"
-API_SECRET = "ВАШ_API_SECRET"
+from binance.client import Client
+from binance.exceptions import BinanceAPIException, BinanceRequestException
+
+
 BASE = "https://api.binance.com"
 
 
@@ -185,7 +187,7 @@ def sign(params: dict, secret: str):
     return qs + "&signature=" + signature
 
 
-def get_deposit_history(startTime=None, endTime=None, coin=None, limit=1000):
+def get_deposit_history(startTime=None, endTime=None, coin=None, network=None, limit=1000):
     setup_proxy(user=user, password=password, ip=ip, port=port)
 
     path = "/sapi/v1/capital/deposit/hisrec"
@@ -194,6 +196,7 @@ def get_deposit_history(startTime=None, endTime=None, coin=None, limit=1000):
     if startTime: params["startTime"] = int(startTime)
     if endTime: params["endTime"] = int(endTime)
     if coin: params["coin"] = coin
+    if network: params["network"] = network
 
     signed_qs = sign(params, api_secret)
     headers = {"X-MBX-APIKEY": api_key}
@@ -202,9 +205,8 @@ def get_deposit_history(startTime=None, endTime=None, coin=None, limit=1000):
     r.raise_for_status()
     return r.json()
 
-
 if __name__ == "__main__":
-    recs = get_deposit_history(limit=100)
+    recs = get_deposit_history(limit=1000)
     for r in recs:
         # ключевые поля: amount, coin, network, status, address, txId, insertTime
         # print(r)
