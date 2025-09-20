@@ -170,13 +170,11 @@ import time
 from urllib.parse import urlencode
 
 import requests
-
-from proxy import setup_proxy
-from system.system import user, password, ip, port, api_key, api_secret
-
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceRequestException
 
+from proxy import setup_proxy
+from system.system import user, password, ip, port, api_key, api_secret
 
 BASE = "https://api.binance.com"
 
@@ -204,6 +202,7 @@ def get_deposit_history(startTime=None, endTime=None, coin=None, network=None, l
     r = requests.get(url, headers=headers, timeout=10)
     r.raise_for_status()
     return r.json()
+
 
 if __name__ == "__main__":
     recs = get_deposit_history(limit=1000)

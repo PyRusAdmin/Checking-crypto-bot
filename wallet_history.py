@@ -10,11 +10,6 @@ from system.system import api_key, api_secret
 # Загружаем .env
 load_dotenv()
 
-# API_KEY = os.getenv('BINANCE_API_KEY')
-# API_SECRET = os.getenv('BINANCE_API_SECRET')
-# api_key, api_secret
-
-
 if not api_key or not api_secret:
     raise ValueError("API ключи не найдены в .env файле!")
 

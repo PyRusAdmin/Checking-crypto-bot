@@ -10,10 +10,10 @@ from system.system import api_key, api_secret
 
 
 def get_funding_assets(
-    api_key: str,
-    api_secret: str,
-    asset: str = None,
-    need_btc_valuation: bool = False
+        api_key: str,
+        api_secret: str,
+        asset: str = None,
+        need_btc_valuation: bool = False
 ):
     """
     Получает список активов в Funding Wallet через POST-запрос.
@@ -90,9 +90,9 @@ def display_funding_assets(assets_data):
         print("📭 Funding Wallet пуст или произошла ошибка.")
         return
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("💰 АКТИВЫ В FUNDING WALLET")
-    print("="*70)
+    print("=" * 70)
     for item in assets_data:
         asset_name = item.get('asset', 'N/A')
         free = item.get('free', '0')
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     assets = get_funding_assets(
         api_key=api_key,
         api_secret=api_secret,
-        asset=None,                 # Все активы
-        need_btc_valuation=True     # Показать эквивалент в BTC
+        asset=None,  # Все активы
+        need_btc_valuation=True  # Показать эквивалент в BTC
     )
 
     display_funding_assets(assets)

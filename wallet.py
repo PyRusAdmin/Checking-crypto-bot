@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import time
 import urllib.parse
+
 import requests
 
 
@@ -94,7 +95,7 @@ if __name__ == '__main__':
         # Уже выводится внутри функции
         pass
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     balances_funding = get_funding_assets(api_key, api_secret)
     if balances_funding:
         print("\n--- Активы в Funding Wallet ---")
