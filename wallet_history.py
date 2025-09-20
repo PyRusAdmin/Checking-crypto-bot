@@ -5,7 +5,8 @@ from binance.client import Client
 from binance.exceptions import BinanceAPIException
 from dotenv import load_dotenv
 
-from system.system import api_key, api_secret
+from proxy import setup_proxy
+from system.system import api_key, api_secret, user, password, ip, port
 
 # Загружаем .env
 load_dotenv()
@@ -13,14 +14,15 @@ load_dotenv()
 if not api_key or not api_secret:
     raise ValueError("API ключи не найдены в .env файле!")
 
-client = Client(api_key, api_secret)
-
 
 def get_wallet_history(asset='USDT', days=30):
     """
     Получает полную историю операций по указанному активу (по умолчанию USDT)
     за последние N дней.
     """
+
+    setup_proxy(user=user, password=password, ip=ip, port=port)
+    client = Client(api_key, api_secret)
     # Рассчитываем timestamp начала периода
     end_time = int(datetime.now(timezone.utc).timestamp() * 1000)
     start_time = int((datetime.now(timezone.utc) - timedelta(days=days)).timestamp() * 1000)

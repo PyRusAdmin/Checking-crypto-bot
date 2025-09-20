@@ -5,12 +5,17 @@ import urllib.parse
 
 import requests
 
+from proxy import setup_proxy
+
 
 def get_wallet_balance(api_key, secret_key, quote_asset="USDT"):
     """
     Получает баланс по всем кошелькам Binance в указанной валюте (по умолчанию USDT).
     Эндпоинт: GET /sapi/v1/asset/wallet/balance
     """
+
+    setup_proxy(user=user, password=password, ip=ip, port=port)
+
     base_url = "https://api.binance.com"  # ✅ ИСПРАВЛЕНО
     endpoint = "/sapi/v1/asset/wallet/balance"
     timestamp = int(time.time() * 1000)
@@ -84,7 +89,7 @@ def get_funding_assets(api_key, secret_key):
 
 # Пример использования
 if __name__ == '__main__':
-    from system.system import api_key, api_secret
+    from system.system import api_key, api_secret, user, password, ip, port
 
     print("📡 Получение баланса по всем кошелькам Binance...")
     balances = get_wallet_balance(api_key, api_secret, quote_asset="USDT")

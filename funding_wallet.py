@@ -6,15 +6,11 @@ import urllib.parse
 
 import requests
 
-from system.system import api_key, api_secret
+from proxy import setup_proxy
+from system.system import api_key, api_secret, user, password, ip, port
 
 
-def get_funding_assets(
-        api_key: str,
-        api_secret: str,
-        asset: str = None,
-        need_btc_valuation: bool = False
-):
+def get_funding_assets(api_key: str, api_secret: str, asset: str = None, need_btc_valuation: bool = False):
     """
     Получает список активов в Funding Wallet через POST-запрос.
     Эндпоинт: POST /sapi/v1/asset/get-funding-asset
@@ -25,6 +21,9 @@ def get_funding_assets(
     :param need_btc_valuation: Нужна ли оценка в BTC (true/false)
     :return: Список активов или None в случае ошибки
     """
+
+    setup_proxy(user=user, password=password, ip=ip, port=port)
+
     base_url = "https://api.binance.com"
     endpoint = "/sapi/v1/asset/get-funding-asset"
     timestamp = int(time.time() * 1000)
